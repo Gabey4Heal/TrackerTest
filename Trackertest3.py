@@ -97,7 +97,7 @@ def decode_protocol_2(hex_data):
     print("  Device Information:", device_information)
     print("  Battery Voltage Level:", battery_voltage_level)
     print("  GSM Signal Strength:", gsm_signal_strength)
-    print("  Battery Voltage:", battery_voltage.hex())
+    print(  "Battery Voltage:", hex(battery_voltage))
     print("  External Voltage:", external_voltage.hex())
     print("Mileage:", mileage.hex())
     print("Hourmeter:", hourmeter.hex())
@@ -191,9 +191,6 @@ def decode_protocol_3(hex_data):
         'end_bit': end_bit.hex(),
     }
 
-
-import binascii
-
 def decode_protocol_4(hex_data):
     byte_data = binascii.unhexlify(hex_data)
     if len(byte_data) < 54:
@@ -220,7 +217,7 @@ def decode_protocol_4(hex_data):
     lbs_info_end = lbs_info_start + 8
     lbs_info = byte_data[lbs_info_start:lbs_info_end]
     mcc = lbs_info[0:2]
-    mnc = lbs_info[2:4]  # Corrected slicing
+    mnc = lbs_info[2:4]  
     lac = lbs_info[4:6]  
     cell_id = lbs_info[6:8]
 
@@ -260,17 +257,17 @@ def decode_protocol_4(hex_data):
     print("  Course Status:", course_status.hex())
     print("LBS Information:")
     print("  MCC:", mcc.hex())
-    print("  MNC:", mnc.hex())  # Added .hex() for consistency
+    print("  MNC:", mnc.hex())  
     print("  LAC:", lac.hex())
     print("  Cell ID:", cell_id.hex())
     print("Status Information:")
     print("  Device Information:", device_information)
     print("  Battery Voltage Level:", battery_voltage_level)
     print("  GSM Signal Strength:", gsm_signal_strength)
-    print("  Alarm Type:", alarm_type)  # Fixed to print value
+    print("  Alarm Type:", alarm_type)  
     print("  Language:", language_str)
-    print("  Battery Voltage:", battery_voltage.hex())
-    print("  External Voltage:", external_voltage.hex())
+    print("  Battery Voltage:", hex(battery_voltage))
+    print("  External Voltage:", bytes([external_voltage]).hex())
     print("Mileage:", mileage.hex())
     print("Hourmeter:", hourmeter.hex())
     print("Information Serial Number:", information_serial_number.hex())
@@ -292,7 +289,7 @@ def decode_protocol_4(hex_data):
         },
         
         "lbs_information": {
-            "lbs": lbs_info.hex(),  # Defined lbs_info
+            "lbs": lbs_info.hex(),  
             "mcc": mcc.hex(),
             "mnc": mnc.hex(),
             "lac": lac.hex(),
@@ -303,19 +300,106 @@ def decode_protocol_4(hex_data):
             "device_information": device_information,
             "battery_voltage_level": battery_voltage_level,
             "gsm_signal_strength": gsm_signal_strength,
-            "alarm_type": alarm_type,
+            "alarm_type": alarm_type,  
             'language': language_str,
-            "battery_voltage": battery_voltage.hex(),
-            "external_voltage": external_voltage.hex()
+            "battery_voltage": hex(battery_voltage),
+            "external_voltage": bytes([external_voltage]).hex()
         },
         
         "mileage": mileage.hex(),
+       
         "hourmeter": hourmeter.hex(),
         "information_serial_number": information_serial_number.hex(),
         "error_check": error_check.hex(),
         "end_bit": end_bit.hex()
     }
+    
 
+def decode_protocol_5(hex_data):
+    byte_data = binascii.unhexlify(hex_data)
+    if len(byte_data) < 28:
+        print("Data insuficiente para Protocolo 5")
+        return
+    
+    start_bit = byte_data[:2]
+    packet_length = byte_data[4]
+    protocol_number = byte_data[5]
+    flag = byte_data[6]
+    device_id = byte_data[7:14]
+    imsi = byte_data [15:22]
+    iccid = byte_data[23:32]
+    information_serial_number = byte_data[33:35]
+    error_check = byte_data[36:38]
+    end_bit = byte_data[39:41]
+    
+    print("Start Bit:", start_bit.hex())
+    print("Packet Length:", packet_length)
+    print("Protocol Number:", protocol_number)
+    print("flag:", flag.hex())
+    print("Device ID:", device_id.hex())
+    print("imsi:", imsi.hex())
+    print("iccid;", iccid.hex())
+    print("Information Serial Number:", information_serial_number.hex())
+    print("Error Check:", error_check.hex())
+    print("End Bit:", end_bit.hex())
+    
+    return {
+        "start_bit": start_bit.hex(),
+        "packet_length": packet_length,
+        "protocol_number": protocol_number,
+        "flag": flag,
+        "device_id": device_id.hex(),
+        "imsi": imsi.hex(),
+        "iccid": iccid.hex(),
+        "information_serial_number": information_serial_number.hex(),
+        "error_check": error_check.hex(),
+        "end_bit": end_bit.hex()
+    }
+    
+
+def decode_protocol_6(hex_data):
+    byte_data = binascii.unhexlify(hex_data)
+    if len(byte_data) < 22:
+        print("Data insuficiente para Protocolo 6")
+        return
+    
+    start_bit = byte_data[:2]
+    packet_length = byte_data[4]
+    protocol_number = byte_data[5]
+    length_of_command = byte_data[6]
+    server_flag_bit = byte_data[7:10]
+    command_content = byte_data[11:]
+    serial_number = byte_data[12:13]
+    error_check = byte_data[14:16]
+    end_bit = byte_data[17:19]
+    
+    print("Start Bit:", start_bit.hex())
+    print("Packet Length:", packet_length)
+    print("Protocol Number:", protocol_number)
+    print("Length of Command:", length_of_command.hex())
+    print("Server Flag Bit:", server_flag_bit.hex())
+    print("Command Content:", command_content.hex())
+    print("Serial Number:", serial_number.hex())
+    print("Error Check:", error_check.hex())
+    print("End Bit:", end_bit.hex())
+    
+    return {
+        "start_bit": start_bit.hex(),
+        "packet_length": packet_length.hex(),
+        "protocol_number": protocol_number.hex(),
+        "length of command": length_of_command.hex(),
+        "server flag bit": server_flag_bit.hex(),
+        "command content": command_content.hex(),
+        "serial number": serial_number.hex(),
+        "error_check": error_check.hex(),
+        "end_bit": end_bit.hex()
+    }
+
+def decode_protocol_7(hex_data):
+    byte_data = binascii.unhexlify(hex_data)
+    if len(byte_data) < 37:
+        print("Data insuficiente para Protocolo 5")
+        return
 
 def main():
     hex_data = input("Digite aqui o data packet desejado: ")
@@ -332,6 +416,12 @@ def main():
             decode_protocol_3(hex_data)
         elif protocol_number == 0x16:
             decode_protocol_4(hex_data)
+        elif protocol_number == 0x094:
+            decode_protocol_5(hex_data)
+        elif protocol_number == 0x80:
+            decode_protocol_6(hex_data)
+        elif protocol_number == 0x15:
+            decode_protocol_7(hex_data)
         else:
             print("Número de protocolo desconhecido. Por favor tente novamente.")
     except (binascii.Error, IndexError) as e:
