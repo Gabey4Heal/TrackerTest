@@ -364,14 +364,14 @@ def decode_protocol_6(hex_data):
         return
     
     start_bit = byte_data[:2]
-    packet_length = byte_data[4]
-    protocol_number = byte_data[5]
-    length_of_command = byte_data[6]
-    server_flag_bit = byte_data[7:10]
-    command_content = byte_data[11:]
-    serial_number = byte_data[12:13]
-    error_check = byte_data[14:16]
-    end_bit = byte_data[17:19]
+    packet_length = byte_data[3]
+    protocol_number = byte_data[4]
+    length_of_command = byte_data[5]
+    server_flag_bit = byte_data[6:9]
+    command_content = byte_data[10:]
+    serial_number = byte_data[11:12]
+    error_check = byte_data[13:15]
+    end_bit = byte_data[16:18]
     
     print("Start Bit:", start_bit.hex())
     print("Packet Length:", packet_length)
@@ -400,6 +400,41 @@ def decode_protocol_7(hex_data):
     if len(byte_data) < 37:
         print("Data insuficiente para Protocolo 5")
         return
+    
+    start_bit = byte_data[:2]
+    packet_length = byte_data[3]
+    protocol_number = byte_data[4]
+    length_of_command = byte_data[5]
+    server_flag_bit = byte_data[6:9]
+    command_content = byte_data[10:]
+    reserved = byte_data[11:13]
+    information_serial_number = byte_data[14:16]
+    error_check = byte_data[17:19]
+    end_bit = byte_data[20:22]
+    
+    print("Start Bit:", start_bit.hex())
+    print("Packet Length:", packet_length)
+    print("Protocol Number:", protocol_number)
+    print("Length of Command:", length_of_command.hex())
+    print("Server Flag Bit:", server_flag_bit.hex())
+    print("Command Content:", command_content.hex())
+    print("reserved:", reserved.hex())
+    print("Information Serial Number:", information_serial_number.hex())
+    print("Error Check:", error_check.hex())
+    print("End Bit:", end_bit.hex())
+    
+    return {
+        "start_bit": start_bit.hex(),
+        "packet_length": packet_length.hex(),
+        "protocol_number": protocol_number.hex(),
+        "length of command": length_of_command.hex(),
+        "server flag bit": server_flag_bit.hex(),
+        "command content": command_content.hex(),
+        "reserved": reserved.hex(),
+        "information_serial_number": information_serial_number.hex(),
+        "error_check": error_check.hex(),
+        "end_bit": end_bit.hex()
+    }
 
 def main():
     hex_data = input("Digite aqui o data packet desejado: ")
