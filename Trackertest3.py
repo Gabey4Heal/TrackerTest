@@ -192,10 +192,12 @@ def decode_protocol_3(hex_data):
     }
 
 
+import binascii
+
 def decode_protocol_4(hex_data):
     byte_data = binascii.unhexlify(hex_data)
     if len(byte_data) < 54:
-        print("data insuficiente para o Protocolo 4")
+        print("Insufficient data for Protocol 4")
         return
     
     start_bit = byte_data[:2]
@@ -218,16 +220,20 @@ def decode_protocol_4(hex_data):
     lbs_info_end = lbs_info_start + 8
     lbs_info = byte_data[lbs_info_start:lbs_info_end]
     mcc = lbs_info[0:2]
-    mnc = lbs_info[2:3]
-    lac = lbs_info[3:5]  
-    cell_id = lbs_info[5:7]
+    mnc = lbs_info[2:4]  # Corrected slicing
+    lac = lbs_info[4:6]  
+    cell_id = lbs_info[6:8]
 
     # Status Information
-    device_info = byte_data[6]
+    status_info_start = lbs_info_end  
+    status_info_end = status_info_start + 9
+    device_information = byte_data[6]  
     battery_voltage_level = byte_data[7]
     gsm_signal_strength = byte_data[8]
-    external_voltage = byte_data[9]
+    alarm_type = byte_data[9]
     language = byte_data[10]
+    battery_voltage = byte_data[11]
+    external_voltage = byte_data[12]
 
     if language == 0x01:
         language_str = 'Chinese'
@@ -241,6 +247,75 @@ def decode_protocol_4(hex_data):
     information_serial_number = byte_data[status_info_end + 8:status_info_end + 10]
     error_check = byte_data[status_info_end + 10:status_info_end + 12]
     end_bit = byte_data[status_info_end + 12:status_info_end + 14]
+    
+    print("Start Bit:", start_bit.hex())
+    print("Packet Length:", packet_length)
+    print("Protocol Number:", protocol_number)
+    print("GPS Information:")
+    print("  Date Time:", date_time.hex())
+    print("  Quantity of GPS Satellites:", quantity_of_gps_satellites)
+    print("  Latitude:", latitude.hex())
+    print("  Longitude:", longitude.hex())
+    print("  Speed:", speed)
+    print("  Course Status:", course_status.hex())
+    print("LBS Information:")
+    print("  MCC:", mcc.hex())
+    print("  MNC:", mnc.hex())  # Added .hex() for consistency
+    print("  LAC:", lac.hex())
+    print("  Cell ID:", cell_id.hex())
+    print("Status Information:")
+    print("  Device Information:", device_information)
+    print("  Battery Voltage Level:", battery_voltage_level)
+    print("  GSM Signal Strength:", gsm_signal_strength)
+    print("  Alarm Type:", alarm_type)  # Fixed to print value
+    print("  Language:", language_str)
+    print("  Battery Voltage:", battery_voltage.hex())
+    print("  External Voltage:", external_voltage.hex())
+    print("Mileage:", mileage.hex())
+    print("Hourmeter:", hourmeter.hex())
+    print("Information Serial Number:", information_serial_number.hex())
+    print("Error Check:", error_check.hex())
+    print("End Bit:", end_bit.hex())
+    
+    return {
+        'start_bit': start_bit.hex(),
+        'packet_length': packet_length,
+        'protocol_number': protocol_number,
+        
+        "gps_information": {
+            "date_time": date_time.hex(),
+            "quantity_of_gps_satellites": quantity_of_gps_satellites,
+            "latitude": latitude.hex(),
+            "longitude": longitude.hex(),
+            "speed": speed,
+            "course_status": course_status.hex()
+        },
+        
+        "lbs_information": {
+            "lbs": lbs_info.hex(),  # Defined lbs_info
+            "mcc": mcc.hex(),
+            "mnc": mnc.hex(),
+            "lac": lac.hex(),
+            "cell_id": cell_id.hex()
+        },
+        
+        "status_information": {
+            "device_information": device_information,
+            "battery_voltage_level": battery_voltage_level,
+            "gsm_signal_strength": gsm_signal_strength,
+            "alarm_type": alarm_type,
+            'language': language_str,
+            "battery_voltage": battery_voltage.hex(),
+            "external_voltage": external_voltage.hex()
+        },
+        
+        "mileage": mileage.hex(),
+        "hourmeter": hourmeter.hex(),
+        "information_serial_number": information_serial_number.hex(),
+        "error_check": error_check.hex(),
+        "end_bit": end_bit.hex()
+    }
+
 
 def main():
     hex_data = input("Digite aqui o data packet desejado: ")
