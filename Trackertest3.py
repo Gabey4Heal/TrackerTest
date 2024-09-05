@@ -358,21 +358,20 @@ def decode_protocol_5(hex_data):
         "end_bit": end_bit.hex()
     }
 
-    
 
 def decode_protocol_6(hex_data):
     byte_data = binascii.unhexlify(hex_data)
     if len(byte_data) < 22:
-        print("Data insuficiente para Protocolo 6")
+        print("Dados insuficientes para Protocolo 6")
         return
     
     start_bit = byte_data[:2]
     packet_length = byte_data[3]
     protocol_number = byte_data[4]
-    length_of_command = byte_data[5]
+    length_of_command = byte_data[5:6]  # Corrigido para extrair como um byte
     server_flag_bit = byte_data[6:9]
     command_content = byte_data[10:]
-    serial_number = byte_data[11:12]
+    serial_number = byte_data[7:11]  # Corrigido para extrair o número de série completo
     error_check = byte_data[13:15]
     end_bit = byte_data[16:18]
     
@@ -398,46 +397,48 @@ def decode_protocol_6(hex_data):
         "end_bit": end_bit.hex()
     }
 
+
 def decode_protocol_7(hex_data):
     byte_data = binascii.unhexlify(hex_data)
     if len(byte_data) < 37:
-        print("Data insuficiente para Protocolo 5")
+        print("Dados insuficientes para Protocolo 7")
         return
     
     start_bit = byte_data[:2]
-    packet_length = byte_data[3]
-    protocol_number = byte_data[4]
-    length_of_command = byte_data[5]
-    server_flag_bit = byte_data[6:9]
-    command_content = byte_data[10:]
+    packet_length = byte_data[2]  # Corrigido para o índice 2
+    protocol_number = byte_data[3]  # Corrigido para o índice 3
+    length_of_command = byte_data[4]
+    server_flag_bit = byte_data[5:8]  # Corrigido para o índice 5 a 8
+    command_content = byte_data[8:]  # Corrigido para o índice 8
     reserved = byte_data[11:13]
-    information_serial_number = byte_data[14:16]
-    error_check = byte_data[17:19]
-    end_bit = byte_data[20:22]
+    information_serial_number = byte_data[13:15]  # Corrigido para o índice 13 a 15
+    error_check = byte_data[15:17]  # Corrigido para o índice 15 a 17
+    end_bit = byte_data[17:19]  # Corrigido para o índice 17 a 19
     
     print("Start Bit:", start_bit.hex())
     print("Packet Length:", packet_length)
     print("Protocol Number:", protocol_number)
-    print("Length of Command:", length_of_command.hex())
+    print("Length of Command:", length_of_command)
     print("Server Flag Bit:", server_flag_bit.hex())
     print("Command Content:", command_content.hex())
-    print("reserved:", reserved.hex())
+    print("Reserved:", reserved.hex())
     print("Information Serial Number:", information_serial_number.hex())
     print("Error Check:", error_check.hex())
     print("End Bit:", end_bit.hex())
     
     return {
         "start_bit": start_bit.hex(),
-        "packet_length": packet_length.hex(),
-        "protocol_number": protocol_number.hex(),
-        "length of command": length_of_command.hex(),
-        "server flag bit": server_flag_bit.hex(),
-        "command content": command_content.hex(),
+        "packet_length": packet_length,
+        "protocol_number": protocol_number,
+        "length_of_command": length_of_command,
+        "server_flag_bit": server_flag_bit.hex(),
+        "command_content": command_content.hex(),
         "reserved": reserved.hex(),
         "information_serial_number": information_serial_number.hex(),
         "error_check": error_check.hex(),
         "end_bit": end_bit.hex()
     }
+
 
 def main():
     hex_data = input("Digite aqui o data packet desejado: ")
