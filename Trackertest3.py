@@ -147,7 +147,7 @@ def decode_protocol_3(hex_data):
     packet_length = byte_data[4]
     protocol_number = byte_data[5]
 
-    # Adjusting the indices based on the expected packet structure
+    # Status Information
     device_info = byte_data[6]
     battery_voltage_level = byte_data[7]
     gsm_signal_strength = byte_data[8]
@@ -190,7 +190,58 @@ def decode_protocol_3(hex_data):
         'error_check': error_check.hex(),
         'end_bit': end_bit.hex(),
     }
-78783116180217132E10C9021EF4EC04B49FF1001911090000000000000 0005006310202018B0000000009EC00003D40023070B10D0A
+
+
+def decode_protocol_4(hex_data):
+    byte_data = binascii.unhexlify(hex_data)
+    if len(byte_data) < 54:
+        print("data insuficiente para o Protocolo 4")
+        return
+    
+    start_bit = byte_data[:2]
+    packet_length = byte_data[4]
+    protocol_number = byte_data[5]
+
+    # GPS Information
+    gps_info_start = 4
+    gps_info_end = gps_info_start + 18
+    gps_info = byte_data[gps_info_start:gps_info_end]
+    date_time = gps_info[:6]
+    quantity_of_gps_satellites = gps_info[6]
+    latitude = gps_info[7:11]
+    longitude = gps_info[11:15]
+    speed = gps_info[16]
+    course_status = gps_info[17:20]
+
+    # LBS Information
+    lbs_info_start = gps_info_end
+    lbs_info_end = lbs_info_start + 8
+    lbs_info = byte_data[lbs_info_start:lbs_info_end]
+    mcc = lbs_info[0:2]
+    mnc = lbs_info[2:3]
+    lac = lbs_info[3:5]  
+    cell_id = lbs_info[5:7]
+
+    # Status Information
+    device_info = byte_data[6]
+    battery_voltage_level = byte_data[7]
+    gsm_signal_strength = byte_data[8]
+    external_voltage = byte_data[9]
+    language = byte_data[10]
+
+    if language == 0x01:
+        language_str = 'Chinese'
+    elif language == 0x02:
+        language_str = 'English'
+    else:
+        language_str = 'Unknown'
+
+    mileage = byte_data[status_info_end:status_info_end + 4]
+    hourmeter = byte_data[status_info_end + 4:status_info_end + 8]
+    information_serial_number = byte_data[status_info_end + 8:status_info_end + 10]
+    error_check = byte_data[status_info_end + 10:status_info_end + 12]
+    end_bit = byte_data[status_info_end + 12:status_info_end + 14]
+
 def main():
     hex_data = input("Digite aqui o data packet desejado: ")
     
@@ -204,6 +255,8 @@ def main():
             decode_protocol_2(hex_data)
         elif protocol_number == 0x13:
             decode_protocol_3(hex_data)
+        elif protocol_number == 0x16:
+            decode_protocol_4(hex_data)
         else:
             print("Número de protocolo desconhecido. Por favor tente novamente.")
     except (binascii.Error, IndexError) as e:
