@@ -190,7 +190,7 @@ def decode_protocol_3(hex_data):
         'error_check': error_check.hex(),
         'end_bit': end_bit.hex(),
     }
-
+78783116180217132E10C9021EF4EC04B49FF1001911090000000000000 0005006310202018B0000000009EC00003D40023070B10D0A
 def main():
     hex_data = input("Digite aqui o data packet desejado: ")
     
