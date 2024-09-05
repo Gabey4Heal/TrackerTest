@@ -315,10 +315,12 @@ def decode_protocol_4(hex_data):
     }
     
 
+import binascii
+
 def decode_protocol_5(hex_data):
     byte_data = binascii.unhexlify(hex_data)
-    if len(byte_data) < 28:
-        print("Data insuficiente para Protocolo 5")
+    if len(byte_data) < 41:  # Alterado para 41 para garantir que todos os acessos sejam válidos
+        print("Dados insuficientes para Protocolo 5")
         return
     
     start_bit = byte_data[:2]
@@ -326,7 +328,7 @@ def decode_protocol_5(hex_data):
     protocol_number = byte_data[5]
     flag = byte_data[6]
     device_id = byte_data[7:14]
-    imsi = byte_data [15:22]
+    imsi = byte_data[15:22]
     iccid = byte_data[23:32]
     information_serial_number = byte_data[33:35]
     error_check = byte_data[36:38]
@@ -335,10 +337,10 @@ def decode_protocol_5(hex_data):
     print("Start Bit:", start_bit.hex())
     print("Packet Length:", packet_length)
     print("Protocol Number:", protocol_number)
-    print("flag:", flag.hex())
+    print("Flag:", flag.hex())
     print("Device ID:", device_id.hex())
-    print("imsi:", imsi.hex())
-    print("iccid;", iccid.hex())
+    print("IMSI:", imsi.hex())
+    print("ICCID:", iccid.hex())
     print("Information Serial Number:", information_serial_number.hex())
     print("Error Check:", error_check.hex())
     print("End Bit:", end_bit.hex())
@@ -355,6 +357,7 @@ def decode_protocol_5(hex_data):
         "error_check": error_check.hex(),
         "end_bit": end_bit.hex()
     }
+
     
 
 def decode_protocol_6(hex_data):
