@@ -90,14 +90,14 @@ def decode_protocol_2(hex_data):
     print("  Course Status:", course_status.hex())
     print("LBS Information:")
     print("  MCC:", mcc.hex())
-    print("  MNC:", mnc)
+    print("  MNC:", mnc.hex())
     print("  LAC:", lac.hex())
     print("  Cell ID:", cell_id.hex())
     print("Status Information:")
     print("  Device Information:", device_information)
     print("  Battery Voltage Level:", battery_voltage_level)
     print("  GSM Signal Strength:", gsm_signal_strength)
-    print(  "Battery Voltage:", hex(battery_voltage))
+    print("  Battery Voltage:", hex(int.from_bytes(battery_voltage, byteorder='big')))
     print("  External Voltage:", external_voltage.hex())
     print("Mileage:", mileage.hex())
     print("Hourmeter:", hourmeter.hex())
@@ -137,33 +137,32 @@ def decode_protocol_2(hex_data):
         "end_bit": end_bit.hex()
     }
 
+
 def decode_protocol_3(hex_data):
     byte_data = binascii.unhexlify(hex_data)
-    if len(byte_data) < 15:
-        print("data insuficiente para o Protocolo 3")
+    if len(byte_data) < 13:
+        print("Dados insuficientes para o Protocolo 3")
         return
     
     start_bit = byte_data[:2]
-    packet_length = byte_data[4]
-    protocol_number = byte_data[5]
-
-    # Status Information
-    device_info = byte_data[6]
-    battery_voltage_level = byte_data[7]
-    gsm_signal_strength = byte_data[8]
-    external_voltage = byte_data[9]
-    language = byte_data[10]
+    packet_length = byte_data[2]
+    protocol_number = byte_data[3]
+    device_info = byte_data[4]
+    battery_voltage_level = byte_data[5]
+    gsm_signal_strength = byte_data[6]
+    external_voltage = byte_data[7]
+    language = byte_data[8]
     
     if language == 0x01:
-        language_str = 'Chinese'
+        language_str = 'Chinês'
     elif language == 0x02:
-        language_str = 'English'
+        language_str = 'Inglês'
     else:
-        language_str = 'Unknown'
+        language_str = 'Desconhecido'
 
-    info_serial_number = byte_data[11:12]
-    error_check = byte_data[12:14]
-    end_bit = byte_data[14:15]
+    info_serial_number = byte_data[9:11]
+    error_check = byte_data[11:13] 
+    end_bit = byte_data[13:]       
 
     print("Start Bit:", start_bit.hex())
     print("Packet Length:", packet_length)
@@ -177,7 +176,7 @@ def decode_protocol_3(hex_data):
     print("Error Check:", error_check.hex())
     print("End Bit:", end_bit.hex())
 
-    return{
+    return {
         'start_bit': start_bit.hex(),
         'packet_length': packet_length,
         'protocol_number': protocol_number,
@@ -190,6 +189,7 @@ def decode_protocol_3(hex_data):
         'error_check': error_check.hex(),
         'end_bit': end_bit.hex(),
     }
+
 
 def decode_protocol_4(hex_data):
     byte_data = binascii.unhexlify(hex_data)
@@ -319,7 +319,7 @@ import binascii
 
 def decode_protocol_5(hex_data):
     byte_data = binascii.unhexlify(hex_data)
-    if len(byte_data) < 41:  # Alterado para 41 para garantir que todos os acessos sejam válidos
+    if len(byte_data) < 41: 
         print("Dados insuficientes para Protocolo 5")
         return
     
@@ -366,19 +366,19 @@ def decode_protocol_6(hex_data):
         return
     
     start_bit = byte_data[:2]
-    packet_length = byte_data[3]
-    protocol_number = byte_data[4]
-    length_of_command = byte_data[5:6]  # Corrigido para extrair como um byte
+    packet_length = byte_data[2] 
+    protocol_number = byte_data[3]
+    length_of_command = byte_data[5]  
     server_flag_bit = byte_data[6:9]
-    command_content = byte_data[10:]
-    serial_number = byte_data[7:11]  # Corrigido para extrair o número de série completo
+    command_content = byte_data[10:10 + length_of_command] 
+    serial_number = byte_data[7:11]  
     error_check = byte_data[13:15]
     end_bit = byte_data[16:18]
     
     print("Start Bit:", start_bit.hex())
     print("Packet Length:", packet_length)
     print("Protocol Number:", protocol_number)
-    print("Length of Command:", length_of_command.hex())
+    print("Length of Command:", length_of_command)
     print("Server Flag Bit:", server_flag_bit.hex())
     print("Command Content:", command_content.hex())
     print("Serial Number:", serial_number.hex())
@@ -387,9 +387,9 @@ def decode_protocol_6(hex_data):
     
     return {
         "start_bit": start_bit.hex(),
-        "packet_length": packet_length.hex(),
-        "protocol_number": protocol_number.hex(),
-        "length of command": length_of_command.hex(),
+        "packet_length": packet_length,
+        "protocol_number": protocol_number,
+        "length of command": length_of_command,
         "server flag bit": server_flag_bit.hex(),
         "command content": command_content.hex(),
         "serial number": serial_number.hex(),
@@ -405,15 +405,15 @@ def decode_protocol_7(hex_data):
         return
     
     start_bit = byte_data[:2]
-    packet_length = byte_data[2]  # Corrigido para o índice 2
-    protocol_number = byte_data[3]  # Corrigido para o índice 3
+    packet_length = byte_data[2]
+    protocol_number = byte_data[3]  
     length_of_command = byte_data[4]
-    server_flag_bit = byte_data[5:8]  # Corrigido para o índice 5 a 8
-    command_content = byte_data[8:]  # Corrigido para o índice 8
-    reserved = byte_data[11:13]
-    information_serial_number = byte_data[13:15]  # Corrigido para o índice 13 a 15
-    error_check = byte_data[15:17]  # Corrigido para o índice 15 a 17
-    end_bit = byte_data[17:19]  # Corrigido para o índice 17 a 19
+    server_flag_bit = byte_data[5:8]  
+    command_content = byte_data[8:8 + length_of_command]
+    reserved = byte_data[8]
+    information_serial_number = byte_data[10]
+    error_check = byte_data[12 + length_of_command:14]
+    end_bit = byte_data[14 + length_of_command:16 + length_of_command]
     
     print("Start Bit:", start_bit.hex())
     print("Packet Length:", packet_length)
