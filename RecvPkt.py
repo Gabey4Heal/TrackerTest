@@ -1,70 +1,78 @@
 import socket
-import binascii
 import threading
 
-def decode_protocol_1(hex_data):
-    byte_data = binascii.unhexlify(hex_data)
-    if len(byte_data) < 18:
-        print("data insuficiente para o Protocolo 1")
-        return
-    
-    start_bit = byte_data[:2]
-    length = byte_data[2]
-    protocol_number = byte_data[3]
-    device_id = byte_data[4:12]
-    information_serial_number = byte_data[12:14]
-    error_check = byte_data[14:16]
-    end_bit = byte_data[16:18]
+# TCP Server
+def tcp_server():
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_socket.bind(('localhost', 65432))
+    server_socket.listen()
 
-    print("Start Bit:", start_bit.hex())
-    print("Length:", length)
-    print("Protocol Number:", protocol_number)
-    print("Device ID:", device_id.hex())
-    print("Information Serial Number:", information_serial_number.hex())
-    print("Error Check:", error_check.hex())
-    print("End Bit:", end_bit.hex())
-
-    return {
-        "start_bit": start_bit.hex(),
-        "length": length,
-        "protocol_number": protocol_number,
-        "device_id": device_id.hex(),
-        "information_serial_number": information_serial_number.hex(),
-        "error_check": error_check.hex(),
-        "end_bit": end_bit.hex()
-    }
-
-def handle_client(conn, addr):
-    print(f'Conexão estabelecida com {addr}')
-
+    print("O servidor está ouvindo ")
     while True:
-        data = conn.recv(1024)
-        if not data:
-            break
-        print(f'Dados recebidos: {data.hex()}')
+        conn, addr = server_socket.accept()
+        print(f"Connected by {addr}")
+        threading.Thread(target=handle_client, args=(conn,)).start()
 
-        try:
-            protocol_number = data[3]
-            if protocol_number == 0x01:
-                decode_protocol_1(data.hex())
-            else:
-                print("Número de protocolo desconhecido. Por favor tente novamente.")
-        except (binascii.Error, IndexError) as e:
-            print("Data Hexadecimal Inválido:", e)
+def handle_client(conn):
+    with conn:
+        while True:
+            data = conn.recv(1024)
+            if not data:
+                break
+            print(f"Received: {data.hex()}")
+            parse_data(data)
+            conn.sendall(data)
 
-        conn.sendall(data)
-        conn.close()
-      
-def start_server():
-    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server.bind(('localhost', 8080))
-    server.listen()
-    print(f'Servidor iniciado em localhost:8080')
+def parse_data(data):
+    if len(data) == 10:  
+        start_bit = data[0:2]
+        length = data[2] 
+        protocol_number = data[3:4]
+        information_serial_number = data[4:6]
+        error_check = data[6:8]
+        end_bit = data[8:10]
 
-    while True:
-        conn, addr = server.accept()
-        thread = threading.Thread(target=handle_client, args=(conn, addr))
-        thread.start()
+        print(f"Start bit: {start_bit.hex()}")
+        print(f"Length: {length}")
+        print(f"Protocol number: {protocol_number.hex()}")
+        print(f"Information serial number: {information_serial_number.hex()}")
+        print(f"Error check: {error_check.hex()}")
+        print(f"End bit: {end_bit.hex()}")
+    elif len(data) == 14:  
+        parse_data_v2(data)
+    else:
+        print("Error: tamanho incorreto de data.")
+
+def parse_data_v2(data):
+    start_bit = data[0:2]
+    length = data[2] 
+    protocol_number = data[3:4]
+    information_serial_number = data[4:6]
+    error_check = data[6:8]
+    end_bit = data[8:10]
+
+    print(f"Start bit (V2): {start_bit.hex()}")
+    print(f"Length (V2): {length}")
+    print(f"Protocol number (V2): {protocol_number.hex()}")
+    print(f"Information serial number (V2): {information_serial_number.hex()}")
+    print(f"Error check (V2): {error_check.hex()}")
+    print(f"End bit (V2): {end_bit.hex()}")
+
+# TCP Client
+def tcp_client(hex_data):
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client_socket.connect(('localhost', 65432))
+
+    client_socket.sendall(hex_data)
+
+    response = client_socket.recv(1024)
+    print(f"Response: {response.hex()}")
+
+    client_socket.close()
 
 if __name__ == "__main__":
-    start_server()
+    threading.Thread(target=tcp_server).start()
+    
+    hex_input = input("por favor copie o código abaixo: ")
+    hex_data = bytes.fromhex(hex_input)
+    tcp_client(hex_data)
