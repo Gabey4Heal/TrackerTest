@@ -1,28 +1,6 @@
 import socket
 import threading
 
-# TCP Server
-def tcp_server():
-    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_socket.bind(('localhost', 65432))
-    server_socket.listen()
-
-    print("O servidor está ouvindo ")
-    while True:
-        conn, addr = server_socket.accept()
-        print(f"Connected by {addr}")
-        threading.Thread(target=handle_client, args=(conn,)).start()
-
-def handle_client(conn):
-    with conn:
-        while True:
-            data = conn.recv(1024)
-            if not data:
-                break
-            print(f"Received: {data.hex()}")
-            parse_data(data)
-            conn.sendall(data)
-
 def parse_data(data):
     if len(data) == 10:  
         start_bit = data[0:2]
@@ -88,23 +66,11 @@ def parse_data_v4(data):
     print(f"Information serial number(V4): {information_serial_number.hex()}")
     print(f"Error check(V4): {error_check.hex()}")
     print(f"End bit(V4): {end_bit.hex()}")
-    
-    
-# TCP Client
-def tcp_client(hex_data):
-    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client_socket.connect(('localhost', 65432))
 
-    client_socket.sendall(hex_data)
-
-    response = client_socket.recv(1024)
-    print(f"Response: {response.hex()}")
-
-    client_socket.close()
-
-if __name__ == "__main__":
-    threading.Thread(target=tcp_server).start()
-    
+def main():
     hex_input = input("por favor copie o código abaixo: ")
     hex_data = bytes.fromhex(hex_input)
-    tcp_client(hex_data)
+    parse_data(hex_data)
+
+if __name__ == "__main__":
+    main()
