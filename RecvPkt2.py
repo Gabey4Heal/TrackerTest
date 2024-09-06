@@ -81,16 +81,30 @@ def parse_data_v4(data):
     error_check = data[6:8]
     end_bit = data[8:10]
     
+    
     print(f"Start bit(V4): {start_bit.hex()}")
     print(f"Length(V4): {length}")
     print(f"Protocol Number(V4): {protocol_number.hex()}")
     print(f"Information serial number(V4): {information_serial_number.hex()}")
     print(f"Error check(V4): {error_check.hex()}")
     print(f"End bit(V4): {end_bit.hex()}")
+    
+    
+# TCP Client
+def tcp_client(hex_data):
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client_socket.connect(('localhost', 65432))
 
+    client_socket.sendall(hex_data)
+
+    response = client_socket.recv(1024)
+    print(f"Response: {response.hex()}")
+
+    client_socket.close()
 
 if __name__ == "__main__":
     threading.Thread(target=tcp_server).start()
     
     hex_input = input("por favor copie o código abaixo: ")
     hex_data = bytes.fromhex(hex_input)
+    tcp_client(hex_data)
